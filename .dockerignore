@@ -1,0 +1,58 @@
+# Docker build context exclusions
+# Based on uv-docker-example patterns
+
+# Virtual environments
+.venv
+venv/
+env/
+
+# Python cache files
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Development files
+.git
+.gitignore
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Environment files (keep .env.example)
+.env
+.env.local
+.env.*.local
+
+# Coverage and testing
+.coverage
+.pytest_cache
+htmlcov/
+
+# Documentation build
+docs/_build/
+site/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Node modules (if any)
+node_modules/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/

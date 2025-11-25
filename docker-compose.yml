@@ -1,0 +1,119 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: fastmcp-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fastmcp-network
+
+  fastmcp-server-1:
+    build: .
+    container_name: fastmcp-server-1
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SERVER_NAME=fastmcp-server-1
+      - STORAGE_ENCRYPTION_KEY=your-super-secret-encryption-key-32-bytes-1
+      - JWT_SIGNING_KEY=your-jwt-signing-key-for-server-1
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - fastmcp-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  fastmcp-server-2:
+    build: .
+    container_name: fastmcp-server-2
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SERVER_NAME=fastmcp-server-2
+      - STORAGE_ENCRYPTION_KEY=your-super-secret-encryption-key-32-bytes-2
+      - JWT_SIGNING_KEY=your-jwt-signing-key-for-server-2
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - fastmcp-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  fastmcp-server-3:
+    build: .
+    container_name: fastmcp-server-3
+    restart: unless-stopped
+    ports:
+      - "8003:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SERVER_NAME=fastmcp-server-3
+      - STORAGE_ENCRYPTION_KEY=your-super-secret-encryption-key-32-bytes-3
+      - JWT_SIGNING_KEY=your-jwt-signing-key-for-server-3
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - fastmcp-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Load balancer for demonstration (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: fastmcp-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - fastmcp-server-1
+      - fastmcp-server-2
+      - fastmcp-server-3
+    networks:
+      - fastmcp-network
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  fastmcp-network:
+    driver: bridge
