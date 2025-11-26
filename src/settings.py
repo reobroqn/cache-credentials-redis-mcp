@@ -16,9 +16,7 @@ class Settings(BaseSettings):
 
     # Encryption Configuration
     ENCRYPTION_KEY: str = "your-fernet-encryption-key-here-32-bytes"
-
-    # Server Configuration
-    SERVER_NAME: str = "fastmcp-credential-demo"
+    JWT_SIGNING_KEY: str = "your-jwt-signing-key-for-hmac-encryption-minimum-32-chars"
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 

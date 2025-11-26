@@ -69,7 +69,6 @@ Key environment variables:
 - `REDIS_HOST` - Redis server hostname
 - `REDIS_PORT` - Redis server port  
 - `ENCRYPTION_KEY` - Fernet encryption key
-- `SERVER_NAME` - Server instance name
 
 ## Security Features
 

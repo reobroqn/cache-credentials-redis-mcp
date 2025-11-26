@@ -4,11 +4,6 @@
         "path": "src/server.py", 
         "entrypoint": "mcp"
     }, 
-    "environment": {
-        "type": "uv", 
-        "python": ">=3.10", 
-        "dependencies": ["fastmcp", "key-value[redis]", "cryptography", "pydantic-settings"]
-    }, 
     "deployment": {
         "transport": "http", 
         "host": "0.0.0.0", 

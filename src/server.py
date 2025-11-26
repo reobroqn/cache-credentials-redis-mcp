@@ -10,10 +10,12 @@ from typing import Any, Dict
 from fastmcp import FastMCP, Context
 from fastmcp.server.middleware.caching import ResponseCachingMiddleware
 from fastmcp.server.middleware.error_handling import ErrorHandlingMiddleware
+from fastmcp.server.auth.providers.jwt import JWTVerifier
 from fastmcp.utilities.logging import get_logger
 from key_value.aio.stores.valkey import ValkeyStore
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+
 from settings import settings
 from middlewares import CredentialMiddleware
 from services.api import APIService
@@ -21,8 +23,16 @@ from services.database import DatabaseService
 
 logger = get_logger(__name__)
 
-# Initialize FastMCP server
-mcp = FastMCP(settings.SERVER_NAME)
+# Create JWT verifier for authentication
+jwt_verifier = JWTVerifier(
+    public_key=settings.JWT_SIGNING_KEY,
+    issuer="fastmcp-test",
+    audience="fastmcp-credential-demo",
+    algorithm="HS256",
+)
+
+# Initialize FastMCP server with authentication
+mcp = FastMCP("fastmcp-test", auth=jwt_verifier)
 
 # Set up Valkey store for caching
 valkey_store = ValkeyStore(
@@ -82,18 +92,11 @@ async def db_query_users(ctx: Context, limit: int = 10) -> Dict[str, Any]:
 @mcp.custom_route("/health", methods=["GET"])
 async def health_check(request: Request):
     """Health check endpoint for Docker health checks"""
-    return JSONResponse(
-        content= {
-            "status": "healthy", "server": settings.SERVER_NAME
-        }
-    )
+    return JSONResponse(content={"status": "healthy", "server": "fastmcp-test"})
 
 
 def main():
     """Main entry point for the FastMCP server"""
-    logger.info(f"Starting FastMCP server: {settings.SERVER_NAME}")
-
-    # Run with HTTP transport for Docker deployment
     mcp.run(transport="http", host="0.0.0.0", port=8000)
 
 

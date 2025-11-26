@@ -9,7 +9,6 @@ from fastmcp.server.middleware import Middleware, MiddlewareContext, CallNext
 from fastmcp.utilities.logging import get_logger
 from key_value.aio.stores.valkey import ValkeyStore
 from key_value.aio.wrappers.encryption import FernetEncryptionWrapper
-from key_value.aio.wrappers.prefix_collections import PrefixCollectionsWrapper
 
 from settings import settings
 
@@ -40,13 +39,8 @@ class CredentialMiddleware(Middleware):
     def __init__(self, valkey_store: ValkeyStore):
         """Initialize the credential middleware"""
         # Add encryption wrapper
-        encrypted_store = FernetEncryptionWrapper(
+        self.credential_store = FernetEncryptionWrapper(
             key_value=valkey_store, fernet=Fernet(settings.ENCRYPTION_KEY.encode())
-        )
-
-        # Add namespace for this server instance
-        self.credential_store = PrefixCollectionsWrapper(
-            key_value=encrypted_store, prefix=f"{settings.SERVER_NAME}:credentials"
         )
 
     async def on_call_tool(
