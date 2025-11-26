@@ -14,7 +14,7 @@ class DatabaseService:
     def __init__(self, credentials: Dict[str, Any]):
         if not credentials:
             raise ValueError("No credentials provided for DatabaseService")
-        self.credentials = credentials  
+        self.credentials = credentials
 
     async def query_users(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Mock database query to fetch users"""

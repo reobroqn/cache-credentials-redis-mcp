@@ -24,7 +24,10 @@ def get_mock_credentials() -> Dict[str, Any]:
             "token": "demo-token-123456789",
             "timeout": 30,
         },
-        "database": {"url": "postgresql://user:password@localhost:5432/dbname", "pool_size": 10},
+        "database": {
+            "url": "postgresql://user:password@localhost:5432/dbname",
+            "pool_size": 10,
+        },
     }
 
 
@@ -38,8 +41,7 @@ class CredentialMiddleware(Middleware):
         """Initialize the credential middleware"""
         # Add encryption wrapper
         encrypted_store = FernetEncryptionWrapper(
-            key_value=valkey_store,
-            fernet=Fernet(settings.ENCRYPTION_KEY.encode())
+            key_value=valkey_store, fernet=Fernet(settings.ENCRYPTION_KEY.encode())
         )
 
         # Add namespace for this server instance
@@ -47,11 +49,9 @@ class CredentialMiddleware(Middleware):
             key_value=encrypted_store, prefix=f"{settings.SERVER_NAME}:credentials"
         )
 
-        logger.info(
-            f"CredentialMiddleware initialized with Valkey at {settings.REDIS_URL}"
-        )
-
-    async def on_call_tool(self, context: MiddlewareContext, call_next: CallNext) -> Any:
+    async def on_call_tool(
+        self, context: MiddlewareContext, call_next: CallNext
+    ) -> Any:
         """
         Handle tool calls - inject credentials if needed
         """
@@ -85,9 +85,7 @@ class CredentialMiddleware(Middleware):
 
         return customer_id
 
-    async def _get_tool_credentials(
-        self, customer_id: str
-    ) -> Dict[str, Any]:
+    async def _get_tool_credentials(self, customer_id: str) -> Dict[str, Any]:
         """Retrieve credentials for a specific tool"""
         credential_key = f"customer:{customer_id}"
         stored_credentials = await self.credential_store.get(credential_key)

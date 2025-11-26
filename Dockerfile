@@ -49,4 +49,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import sys; sys.exit(0)" || exit 1
 
 # Default command - use FastMCP CLI with server file
-CMD ["fastmcp", "run", "src/main.py"]
+CMD ["fastmcp", "run"]
