@@ -47,7 +47,7 @@ async def api_get_user_data(user_id: str, ctx: Context) -> Dict[str, Any]:
         User data including name, email, and status
     """
     # Credentials are automatically injected by the middleware into context state
-    credentials = ctx.get_state("_credentials")
+    credentials = ctx.get_state("_credentials") or {}
 
     api_service = APIService(credentials)
     user_data = await api_service.get_user_data(user_id)
@@ -78,13 +78,19 @@ async def db_query_users(ctx: Context, limit: int = 10) -> Dict[str, Any]:
     return {"users": users, "count": len(users)}
 
 
+@mcp.custom_route("GET", "/health")
+async def health_check():
+    """Health check endpoint for Docker health checks"""
+    return {"status": "healthy", "server": settings.SERVER_NAME}
+
+
 def main():
     """Main entry point for the FastMCP server"""
     logger.info(f"Starting FastMCP server: {settings.SERVER_NAME}")
     logger.info(f"Valkey connection: {settings.REDIS_URL}")
 
-    # Run the server
-    mcp.run()
+    # Run with HTTP transport for Docker deployment
+    mcp.run(transport="http", host="0.0.0.0", port=8000)
 
 
 if __name__ == "__main__":
